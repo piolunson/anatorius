@@ -1,0 +1,8 @@
+Anatorius bundles Baritone (https://github.com/cabaletta/baritone) by leijurv and Brady,
+licensed under the GNU Lesser General Public License v3.0 (LGPL-3.0).
+It is included unmodified as its own Fabric mod in META-INF/jars/baritone-api-fabric-1.17.0.jar
+and can be replaced with any compatible Baritone build. Source: https://github.com/cabaletta/baritone
+License text: https://www.gnu.org/licenses/lgpl-3.0.txt
+
+Anatorius includes the client part of CustomSkyboxes by cotii (sky, sun, moon, stars, clouds and
+weather replacement, /customskyboxes command), integrated with the author's permission.

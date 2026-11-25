@@ -1,0 +1,34 @@
+{
+    "blend": {
+        "func": "add",
+        "srcrgb": "srcalpha",
+        "dstrgb": "1-srcalpha"
+    },
+    "vertex": "minecraft:post/sobel",
+    "fragment": "anatorius:program/esp_blurglow",
+    "attributes": [
+        "Position"
+    ],
+    "samplers": [
+        {
+            "name": "u_Texture"
+        }
+    ],
+    "uniforms": [
+        { "name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] },
+        { "name": "InSize", "type": "float", "count": 2, "values": [ 1.0, 1.0 ] },
+        { "name": "OutSize", "type": "float", "count": 2, "values": [ 1.0, 1.0 ] },
+        { "name": "u_Image", "type": "int", "count": 1, "values": [ 0 ] },
+        { "name": "u_OverlayAlpha", "type": "float", "count": 1, "values": [ 1.0 ] },
+        { "name": "u_Width", "type": "int", "count": 1, "values": [ 3 ] },
+        { "name": "u_FastLines", "type": "int", "count": 1, "values": [ 1 ] },
+        { "name": "u_ShapeMode", "type": "int", "count": 1, "values": [ 2 ] },
+        { "name": "u_GlowMultiplier", "type": "float", "count": 1, "values": [ 1.5 ] },
+        { "name": "u_GlowQuality", "type": "int", "count": 1, "values": [ 2 ] },
+        { "name": "u_FillColor", "type": "float", "count": 4, "values": [ 1.0, 0.0, 0.0, 0.5 ] },
+        { "name": "u_OutlineColor", "type": "float", "count": 4, "values": [ 1.0, 1.0, 1.0, 1.0 ] },
+        { "name": "u_Dots", "type": "int", "count": 1, "values": [ 0 ] },
+        { "name": "u_DotsRadius", "type": "int", "count": 1, "values": [ 5 ] },
+        { "name": "u_DotsAlpha", "type": "float", "count": 1, "values": [ 0.5 ] }
+    ]
+}

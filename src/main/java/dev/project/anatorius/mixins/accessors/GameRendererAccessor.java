@@ -1,0 +1,12 @@
+package dev.project.anatorius.mixins.accessors;
+
+import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.util.memory.ObjectPool;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.gen.Accessor;
+
+@Mixin(GameRenderer.class)
+public interface GameRendererAccessor {
+    @Accessor
+    ObjectPool getPool();
+}

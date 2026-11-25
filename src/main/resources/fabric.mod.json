@@ -1,0 +1,32 @@
+{
+	"schemaVersion": 1,
+	"id": "anatorius-dev",
+	"version": "${version}",
+	"name": "AnatoriusDev",
+	"description": "If you crack this client, Allah will crack you too.",
+	"authors": [
+		"ArtyCi/DesBilalz"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "GPL-3.0",
+	"icon": "assets/anatorius/icon.png",
+	"environment": "*",
+	"accessWidener" : "anatorius.accesswidener",
+	"entrypoints": {
+		"main": [
+          "dev.project.anatorius.Anatorius"
+		]
+	},
+	"mixins": [
+      "anatorius.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}

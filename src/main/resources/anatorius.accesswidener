@@ -1,0 +1,5 @@
+accessWidener v2 named
+accessible class net/minecraft/client/render/OutlineVertexConsumerProvider$OutlineVertexConsumer
+accessible class net/minecraft/client/render/item/HeldItemRenderer$HandRenderType
+accessible class net/minecraft/network/state/NetworkStateBuilder$PacketType
+accessible field net/minecraft/client/input/Input movementVector Lnet/minecraft/util/math/Vec2f;

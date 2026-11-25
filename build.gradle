@@ -1,0 +1,164 @@
+plugins {
+	id 'java'
+	id 'fabric-loom' version '1.17-SNAPSHOT'
+	id 'com.gradleup.shadow' version '9.6.0'
+	id 'io.freefair.lombok' version '9.5.0'
+	id 'com.github.gmazzo.buildconfig' version '6.0.10'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+	archivesName = project.mod_id
+}
+
+def baritoneJar = file('libs/baritone-api-fabric-1.17.0.jar')
+if (!baritoneJar.isFile()) {
+	baritoneJar.parentFile.mkdirs()
+	println "Downloading Baritone API 1.17.0..."
+	new URL('https://github.com/cabaletta/baritone/releases/download/v1.17.0/baritone-api-fabric-1.17.0.jar')
+			.withInputStream { i -> baritoneJar.withOutputStream { it << i } }
+}
+
+repositories {
+	flatDir { dirs 'libs' }
+	maven {
+		name = "babbaj"
+		url = "https://babbaj.github.io/maven/"
+	}
+	maven {
+		name = "meteor-maven"
+		url = "https://maven.meteordev.org/releases"
+	}
+	maven {
+		name = "meteor-maven"
+		url = "https://maven.meteordev.org"
+	}
+	mavenCentral()
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	modImplementation "cabaletta:baritone-api-fabric:1.17.0"
+	include "cabaletta:baritone-api-fabric:1.17.0"
+	runtimeOnly "dev.babbaj:nether-pathfinder:1.6"
+
+	implementation(shadow("meteordevelopment:discord-ipc:1.1"))
+}
+
+def runGit = { String cmd ->
+	try {
+		def p = cmd.execute()
+		p.waitFor()
+		return p.exitValue() == 0 ? p.text.trim() : null
+	} catch (IOException ignored) {
+		return null
+	}
+}
+
+buildConfig {
+	className("BuildConstants")
+	packageName(group)
+
+	buildConfigField(String, 'MOD_NAME', project.mod_name)
+	buildConfigField(String, 'MOD_ID', project.mod_id)
+	buildConfigField(String, 'MOD_VERSION', project.mod_version)
+	buildConfigField(String, 'MINECRAFT_VERSION', project.minecraft_version)
+	buildConfigField(String, 'GIT_HASH', (runGit('git rev-parse HEAD') ?: 'public').take(10))
+	buildConfigField(String, 'GIT_REVISION', runGit('git rev-list --all --count') ?: '0')
+}
+
+processResources {
+	inputs.property "version", project.version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 21
+	it.options.encoding = 'UTF-8'
+}
+
+loom {
+	accessWidenerPath = file("src/main/resources/anatorius.accesswidener")
+}
+
+java {
+	withSourcesJar()
+
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
+}
+
+def unregisteredModules = ['modules/impl/core/GuiChangerModule.java', 'modules/impl/visuals/CustomSkyboxesModule.java']
+
+jar {
+	exclude 'assets/customskyboxes/**'
+}
+
+shadowJar {
+	configurations = [project.configurations.shadow]
+	archiveClassifier.set("dev")
+	exclude 'assets/customskyboxes/**'
+}
+
+remapJar {
+	dependsOn(shadowJar)
+	inputFile = tasks.shadowJar.archiveFile
+}
+
+def registryOut = layout.buildDirectory.dir("generated/sources/registry")
+tasks.register('genRegistry') {
+	def srcRoot = file('src/main/java')
+	def outDir = registryOut.get().asFile
+	inputs.dir 'src/main/java/dev/project/anatorius/modules/impl'
+	inputs.dir 'src/main/java/dev/project/anatorius/commands/impl'
+	outputs.dir outDir
+	doLast {
+		def collect = { String rel, String anno ->
+			def base = new File(srcRoot, rel)
+			def list = []
+			base.eachFileRecurse { f ->
+				if (!f.name.endsWith('.java')) return
+				def path = f.path.replace('\\', '/')
+				if (unregisteredModules.any { path.endsWith(it) }) return
+				def text = f.text
+				int ai = text.indexOf(anno)
+				if (ai < 0) return
+				def pm = (text =~ /(?m)^\s*package\s+([\w.]+)\s*;/)
+				if (!pm) return
+				def cm = (text.substring(ai) =~ /public\s+(?:final\s+)?class\s+(\w+)/)
+				if (!cm) return
+				list << (pm[0][1] + '.' + cm[0][1])
+			}
+			list.unique().sort()
+		}
+		def modules = collect('dev/project/anatorius/modules/impl', '@RegisterModule')
+		def commands = collect('dev/project/anatorius/commands/impl', '@RegisterCommand')
+		def pkgDir = new File(outDir, 'dev/project/anatorius/generated')
+		pkgDir.mkdirs()
+		def sb = new StringBuilder()
+		sb << 'package dev.project.anatorius.generated;\n\n'
+		sb << 'public final class GeneratedRegistry {\n'
+		sb << '    private GeneratedRegistry() {}\n\n'
+		sb << '    public static final Class<?>[] MODULES = {\n'
+		modules.each { sb << '        ' << it << '.class,\n' }
+		sb << '    };\n\n'
+		sb << '    public static final Class<?>[] COMMANDS = {\n'
+		commands.each { sb << '        ' << it << '.class,\n' }
+		sb << '    };\n'
+		sb << '}\n'
+		new File(pkgDir, 'GeneratedRegistry.java').text = sb.toString()
+		println "genRegistry: ${modules.size()} modules, ${commands.size()} commands"
+	}
+}
+sourceSets.main.java.srcDir registryOut
+tasks.named('compileJava') { dependsOn 'genRegistry' }
+tasks.named('sourcesJar') { dependsOn 'genRegistry' }
