@@ -9,9 +9,20 @@
 ![Java](https://img.shields.io/badge/Java-21-E76F00?style=flat-square)
 ![Modules](https://img.shields.io/badge/Modules-162-8A2BE2?style=flat-square)
 
+**English** · [Polski](README.pl.md) · [Русский](README.ru.md) · [Español](README.es.md) · [中文](README.zh.md)
+
 </div>
 
 ---
+
+> **This is an unofficial fork** of [AnatoriusDev/Anatorius](https://github.com/AnatoriusDev/Anatorius).
+> The code is unchanged: this fork only adds translated documentation and prebuilt jars published
+> under [Releases](https://github.com/piolunson/anatorius/releases).
+
+## Download
+
+The ready-to-use mod is attached to the [latest release](https://github.com/piolunson/anatorius/releases/latest):
+**`anatorius-2.2.4.jar`**. Ignore the `-dev` and `-sources` jars.
 
 ## Why is this public?
 
@@ -33,8 +44,8 @@ You only need **JDK 21**. Everything else (Gradle, Minecraft, Fabric, Baritone) 
 first build.
 
 ```bash
-git clone <this repo>
-cd Anatorius
+git clone https://github.com/piolunson/anatorius.git
+cd anatorius
 ./gradlew build        # Windows: gradlew.bat build
 ```
 
